@@ -2,12 +2,17 @@ import {mapToToastrMessage} from './utils.js';
 import EventEmitter from 'eventemitter3';
 const emitter = new EventEmitter();
 
-const addToToastr = (type, array) => emitter.emit('add/toastr', mapToToastrMessage(type, array));
+const addToToastr = (type, array) => {
+  console.log('Emitting add/toastr', type, array);
+  emitter.emit('add/toastr', mapToToastrMessage(type, array));
+};
 
 let actions = {};
 ['light', 'message', 'info', 'success', 'warning', 'error'].forEach(item => {
   actions[item] = (...args) => addToToastr(item, args);
 });
+
+console.log('initialized actions', actions);
 
 actions.clean = () => emitter.emit('clean/toastr');
 
@@ -25,6 +30,15 @@ actions.confirm = (...args) => {
     options: args[1] || {}
   });
 };
+
+emitter.eventNames().forEach(event => {
+  emitter.on(event, (options) => {
+    console.log('---------------------');
+    console.log('Emitted ' + event);
+    console.log('options: ', options);
+    console.log('---------------------');
+  });
+});
 
 export const EE = emitter;
 export const toastrEmitter = actions;
